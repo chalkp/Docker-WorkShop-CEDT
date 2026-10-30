@@ -1,25 +1,25 @@
 services:
   web:
     # TODO(step-5a): build the image from the local Dockerfile and expose port 3000.
-      build: ???
+      build: .
       ports:
-        - "???:???"
+        - "3000:3000"
 
     # TODO(step-5b): set the DATABASE_URL env var so the app can reach Postgres.
       # HINT: you can find this URL in .env.example
       environment:
-          DATABASE_URL: ???
+          DATABASE_URL: postgres://postgres:postgres@db:5432/workshop
 
     # TODO(step-5c): make `web` wait until `db` is healthy before starting.
-      ???:
-        ???:
+      depends_on:
+        db:
           condition: service_healthy
 
   db:
     # TODO(step-5d): use postgres:16-alpine and define a healthcheck using pg_isready.
-        image: ???
+        image: postgres:16-alpine
         healthcheck:
-          test: ["???", "pg_isready -U postgres -d workshop"]
+          test: ["CMD-SHELL", "pg_isready -U postgres -d workshop"]
           interval: 5s
           timeout: 3s
           retries: 10
@@ -28,7 +28,7 @@ services:
     # TODO(step-5e): mount the named volume `pgdata` at /var/lib/postgresql/data.
         volumes:
           - pgdata:/var/lib/postgresql/data
-    #       there might be something here ?
+          - ./app/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
     # TODO(step-5f): set Postgres env vars so the DB and user are created on startup.
         environment:
@@ -42,4 +42,4 @@ services:
 
 # TODO(step-5h): declare the named volume `pgdata` at the top level.
 volumes:
-  ???:
+  pgdata:
